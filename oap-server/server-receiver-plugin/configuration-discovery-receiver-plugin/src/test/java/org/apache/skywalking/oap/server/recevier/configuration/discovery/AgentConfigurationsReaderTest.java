@@ -38,7 +38,7 @@ public class AgentConfigurationsReaderTest {
         Assertions.assertEquals(
             "/api/seller/seller/*", agentConfigurations0.getConfiguration().get("trace.ignore_path"));
         Assertions.assertEquals(
-            "92670f1ccbdee60e14ffc054d70a5cf3f93f6b5fb1adb83b10bea4fec79b96e7bc5e7b188e231428853721ded42ec756663947316065617f3cfdf51d6dfc8da6",
+            "faa43ed870531970966dd533f4d68ec96adffa65405a0d86c4eaad431b93c2f97f98b31a532105fa7199719a3b276b0e890928174945032d8d804373a81cd21b",
             agentConfigurations0.getUuid()
         );
 
@@ -49,7 +49,40 @@ public class AgentConfigurationsReaderTest {
         Assertions.assertEquals(
             "/api/seller/seller/*", agentConfigurations1.getConfiguration().get("trace.ignore_path"));
         Assertions.assertEquals(
-            "92670f1ccbdee60e14ffc054d70a5cf3f93f6b5fb1adb83b10bea4fec79b96e7bc5e7b188e231428853721ded42ec756663947316065617f3cfdf51d6dfc8da6",
+            "faa43ed870531970966dd533f4d68ec96adffa65405a0d86c4eaad431b93c2f97f98b31a532105fa7199719a3b276b0e890928174945032d8d804373a81cd21b",
+            agentConfigurations0.getUuid()
+        );
+    }
+
+    @Test
+    public void testReadAgentDefaultConfigurations() {
+        AgentConfigurationsReader reader = new AgentConfigurationsReader(
+            this.getClass().getClassLoader().getResourceAsStream("agent-dynamic-default-configuration.yml"));
+
+        Map<String, AgentConfigurations> configurationCache = reader.readAgentConfigurationsTable()
+                                                                    .getAgentConfigurationsCache();
+        Assertions.assertEquals(2, configurationCache.size());
+        AgentConfigurations agentConfigurations0 = configurationCache.get("serviceA");
+        Assertions.assertEquals("serviceA", agentConfigurations0.getService());
+        Assertions.assertEquals(3, agentConfigurations0.getConfiguration().size());
+        Assertions.assertEquals("5", agentConfigurations0.getConfiguration().get("trace.sample_rate"));
+        Assertions.assertEquals(
+            "/api/seller/seller/*", agentConfigurations0.getConfiguration().get("trace.ignore_path"));
+        Assertions.assertEquals(
+            ".gif,jpg", agentConfigurations0.getConfiguration().get("trace.ignore_suffix"));
+        Assertions.assertEquals(
+            "840131d861d8cf4d83e48dae3929184764fd56dd3c992771f34cfafdca5cc485ed31963a0c15788ba4fe3e165fc04f2dfc76ba315a4932291db1b03460a509be",
+            agentConfigurations0.getUuid()
+        );
+
+        AgentConfigurations agentConfigurations1 = configurationCache.get("serviceB");
+        Assertions.assertEquals("serviceB", agentConfigurations1.getService());
+        Assertions.assertEquals(2, agentConfigurations1.getConfiguration().size());
+        Assertions.assertEquals("1000", agentConfigurations1.getConfiguration().get("trace.sample_rate"));
+        Assertions.assertEquals(
+            "/api/test/*", agentConfigurations1.getConfiguration().get("trace.ignore_path"));
+        Assertions.assertEquals(
+            "840131d861d8cf4d83e48dae3929184764fd56dd3c992771f34cfafdca5cc485ed31963a0c15788ba4fe3e165fc04f2dfc76ba315a4932291db1b03460a509be",
             agentConfigurations0.getUuid()
         );
     }

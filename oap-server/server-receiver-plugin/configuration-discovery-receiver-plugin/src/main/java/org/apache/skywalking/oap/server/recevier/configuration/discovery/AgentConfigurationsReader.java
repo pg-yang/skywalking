@@ -25,6 +25,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeMap;
 import lombok.extern.slf4j.Slf4j;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -35,6 +38,9 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
  */
 @Slf4j
 public class AgentConfigurationsReader {
+
+    private static final String DEFAULT_CONFIG = "default";
+
     private Map yamlData;
 
     public AgentConfigurationsReader(InputStream inputStream) {
@@ -50,30 +56,40 @@ public class AgentConfigurationsReader {
     public AgentConfigurationsTable readAgentConfigurationsTable() {
         AgentConfigurationsTable agentConfigurationsTable = new AgentConfigurationsTable();
         try {
-            if (Objects.nonNull(yamlData)) {
-                Map configurationsData = (Map) yamlData.get("configurations");
-                if (configurationsData != null) {
-                    configurationsData.forEach((k, v) -> {
-                        Map map = (Map) v;
-                        StringBuilder serviceConfigStr = new StringBuilder();
-                        Map<String, String> config = new HashMap<>(map.size());
-                        map.forEach((key, value) -> {
-                            config.put(key.toString(), value.toString());
-
-                            serviceConfigStr.append(key).append(":").append(value);
-                        });
-
-                        // noinspection UnstableApiUsage
-                        AgentConfigurations agentConfigurations = new AgentConfigurations(
-                            k.toString(), config,
-                            Hashing.sha512().hashString(
-                                serviceConfigStr.toString(), StandardCharsets.UTF_8).toString()
-                        );
-                        agentConfigurationsTable.getAgentConfigurationsCache()
-                                                .put(agentConfigurations.getService(), agentConfigurations);
-                    });
-                }
+            if (Objects.isNull(yamlData)) {
+                return agentConfigurationsTable;
             }
+            Map<String,Map> configurationsData = (Map) yamlData.get("configurations");
+            if (configurationsData == null) {
+                return agentConfigurationsTable;
+            }
+            Map defaultConfig= Optional.ofNullable(configurationsData.get(DEFAULT_CONFIG)).orElse(new HashMap());
+
+            Set<Map.Entry<String, Map>> entries = configurationsData.entrySet();
+            for (Map.Entry<?, ?> entry : entries) {
+                if (DEFAULT_CONFIG.equals(entry.getKey())) {
+                    continue;
+                }
+                Map map = (Map) entry.getValue();
+                StringBuilder serviceConfigStr = new StringBuilder();
+                Map<String, String> config = new TreeMap<>();
+                defaultConfig.forEach((key, value) -> config.put(key.toString(), value.toString()));
+
+                map.forEach((key, value) -> config.put(key.toString(), value.toString()));
+
+                config.forEach((k,v)-> serviceConfigStr.append(k).append(":").append(v));
+
+                // noinspection UnstableApiUsage
+                AgentConfigurations agentConfigurations = new AgentConfigurations(
+                    entry.getKey().toString(), config,
+                    Hashing.sha512().hashString(
+                        serviceConfigStr.toString(), StandardCharsets.UTF_8).toString()
+                );
+                agentConfigurationsTable.getAgentConfigurationsCache()
+                                        .put(agentConfigurations.getService(), agentConfigurations);
+
+            }
+
         } catch (Exception e) {
             log.error("Read ConfigurationDiscovery configurations error.", e);
         }
