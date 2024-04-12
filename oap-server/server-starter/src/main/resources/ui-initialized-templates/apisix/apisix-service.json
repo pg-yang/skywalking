@@ -23,7 +23,7 @@
             "showYAxis": true
           },
           "expressions": [
-            "meter_apisix_sv_http_requests"
+            "aggregate_labels(meter_apisix_sv_http_requests,sum(service_instance_id))"
           ],
           "metricMode": "Expression",
           "typesOfMQE": [
@@ -50,7 +50,7 @@
             "showYAxis": true
           },
           "expressions": [
-            "meter_apisix_sv_http_status_matched"
+            "aggregate_labels(meter_apisix_sv_http_status_matched,sum(code))"
           ],
           "metricMode": "Expression",
           "typesOfMQE": [
@@ -99,7 +99,7 @@
             "showYAxis": true
           },
           "expressions": [
-            "meter_apisix_sv_http_latency_matched"
+            "aggregate_labels(meter_apisix_sv_http_latency_matched,avg(type,p))"
           ],
           "metricMode": "Expression",
           "typesOfMQE": [
@@ -149,7 +149,7 @@
             "showYAxis": true
           },
           "expressions": [
-            "meter_apisix_sv_bandwidth_matched/1024"
+            "aggregate_labels(meter_apisix_sv_bandwidth_matched/1024,sum(type))"
           ],
           "metricMode": "Expression",
           "typesOfMQE": [
@@ -187,7 +187,7 @@
           "i": "5",
           "type": "Widget",
           "expressions": [
-            "meter_apisix_sv_http_connections"
+            "aggregate_labels(meter_apisix_sv_http_connections,sum(state))"
           ],
           "metricMode": "Expression",
           "typesOfMQE": [
@@ -248,7 +248,7 @@
             "showYAxis": true
           },
           "expressions": [
-            "meter_apisix_sv_http_status_unmatched"
+            "aggregate_labels(meter_apisix_sv_http_status_unmatched,sum(code))"
           ],
           "metricMode": "Expression",
           "typesOfMQE": [
@@ -297,7 +297,7 @@
             "showYAxis": true
           },
           "expressions": [
-            "meter_apisix_sv_http_latency_unmatched"
+            "aggregate_labels(meter_apisix_sv_http_latency_unmatched,avg(type,p))"
           ],
           "metricMode": "Expression",
           "typesOfMQE": [
@@ -347,7 +347,7 @@
             "showYAxis": true
           },
           "expressions": [
-            "meter_apisix_sv_bandwidth_unmatched/1024"
+            "aggregate_labels(meter_apisix_sv_bandwidth_unmatched/1024,sum(type))"
           ],
           "metricMode": "Expression",
           "typesOfMQE": [
